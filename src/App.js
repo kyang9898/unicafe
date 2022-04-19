@@ -1,49 +1,80 @@
 import React, { useState } from "react";
 
+const Button = (props) => <button onClick={props.click}>{props.text}</button>;
+
+const Statistic = ({ text, value }) => (
+  <tr>
+    <td>{text}</td>
+    <td>{value}</td>
+  </tr>
+);
+
+const Statistics = ({ good, neutral, bad }) => {
+  if (good === 0 && neutral === 0 && bad === 0) {
+    return (
+      <div>
+        <h2>Statistics</h2>
+        <p>No Feedback Provided</p>
+      </div>
+    );
+  }
+
+  const calculateAll = () => good + neutral + bad;
+
+  const calculateAvg = () => {
+    let total = calculateAll();
+    return ((good - bad) / total).toFixed(1);
+  };
+
+  const calculatePos = () => {
+    let total = calculateAll();
+    return ((good / total) * 100).toFixed(1) + " %";
+  };
+
+  return (
+    <div>
+      <h2>Statistics</h2>
+      <table>
+        <tbody>
+          <Statistic text="Good" value={good} />
+          <Statistic text="Neutral" value={neutral} />
+          <Statistic text="Bad" value={bad} />
+          <Statistic text="All" value={calculateAll()} />
+          <Statistic text="Average" value={calculateAvg()} />
+          <Statistic text="Positive" value={calculatePos()} />
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 const App = () => {
-  // save clicks of each button to its own state
+  // save clicks of each button to own state
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
   const [bad, setBad] = useState(0);
-  const all = good + bad + neutral;
+
+  const feedbackGathered = (feedback) => () => {
+    if (feedback === "good") {
+      setGood(good + 1);
+    } else if (feedback === "neutral") {
+      setNeutral(neutral + 1);
+    } else if (feedback === "bad") {
+      setBad(bad + 1);
+    }
+  };
 
   return (
     <div>
-      <Title name={"give feedback"} />
-      <Button name={"good"} func={setGood} value={good} />
-      <Button name={"neutral"} func={setNeutral} value={neutral} />
-      <Button name={"bad"} func={setBad} value={bad} />
-
-      <Title name={"statistics"} />
-      <Counter name={"good"} number={good} />
-      <Counter name={"neutral"} number={neutral} />
-      <Counter name={"bad"} number={bad} />
-      <Counter name={"all"} number={all} />
-      <Counter name={"average"} number={(good - bad) / all} />
-      <Counter name={"positive"} number={String((good / all) * 100) + "%"} />
+      <h1>Unicafe Feedback</h1>
+      <h2>Give Feedback</h2>
+      <Button click={feedbackGathered("good")} text="Good" />
+      <Button click={feedbackGathered("neutral")} text="Neutral" />
+      <Button click={feedbackGathered("bad")} text="Bad" />
+      <hr />
+      <Statistics good={good} neutral={neutral} bad={bad} />
     </div>
   );
-};
-
-const Title = (props) => {
-  return <h2> {props.name} </h2>;
-};
-const Button = (props) => {
-  return (
-    <button onClick={setToValue(props.func, props.value + 1)}>
-      {props.name}
-    </button>
-  );
-};
-const Counter = (props) => {
-  return (
-    <div>
-      {props.name} {props.number}
-    </div>
-  );
-};
-const setToValue = (func, newValue) => () => {
-  func(newValue);
 };
 
 export default App;
